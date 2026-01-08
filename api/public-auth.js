@@ -1,34 +1,37 @@
 import { Buffer } from "buffer";
 
-export default async function handler(req, res) {
-	const clientId = process.env.SPOTIFY_CLIENT_ID;
-	const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+export const config = {
+  runtime: 'edge',
+};
 
-	console.log(`SPOTIFY_CLIENT_ID present: ${!!clientId}`);
-	console.log(`SPOTIFY_CLIENT_SECRET present: ${!!clientSecret}`);
+export default async function handler(request) {
+	if (request.method !== "POST") {
+		return new Response(JSON.stringify({
+			error: "Method Not Allowed",
+			message: "This endpoint only supports POST requests.",
+		}), { status: 405, headers: { 'Content-Type': 'application/json' } });
+	}
 
-	if (!clientId || !clientSecret) {
+	const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+	const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+
+	if (!CLIENT_ID || !CLIENT_SECRET) {
 		console.error(
 			"Serverless Function Error: Missing Spotify client ID or secret in environment variables."
 		);
-		return res.status(500).json({
-			error: "Server configuration error: Spotify credentials missing.",
-		});
+		return new Response(JSON.stringify({
+			error: "Server configuration error",
+			message: "Spotify credentials missing.",
+		}), { status: 500, headers: { 'Content-Type': 'application/json' } });
 	}
 
 	try {
-		const authString = Buffer.from(`${clientId}:${clientSecret}`).toString(
+		const authString = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
 			"base64"
 		);
-		console.log(
-			`Generated auth string (first 10 chars): ${authString.substring(
-				0,
-				10
-			)}...`
-		);
+		
 		const params = new URLSearchParams();
 		params.append("grant_type", "client_credentials");
-		console.log("Requesting token with body:", params.toString());
 
 		const spotifyResponse = await fetch(
 			"https://accounts.spotify.com/api/token",
@@ -38,25 +41,22 @@ export default async function handler(req, res) {
 					"Content-Type": "application/x-www-form-urlencoded",
 					Authorization: `Basic ${authString}`,
 				},
-				body: params,
+				body: params.toString(),
 			}
 		);
-
-		console.log("Spotify response status:", spotifyResponse.status);
 
 		const data = await spotifyResponse.json();
 
 		if (!spotifyResponse.ok) {
-			console.error("Spotify Token API Error (Serverless):", data);
-			return res.status(spotifyResponse.status).json(data);
+			console.error("Spotify Token API Error:", data);
+			return new Response(JSON.stringify(data), { status: spotifyResponse.status, headers: { 'Content-Type': 'application/json' } });
 		}
 
-		console.log("Successfully received access token from Spotify.");
-		res.status(200).json({ access_token: data.access_token });
+		return new Response(JSON.stringify({ access_token: data.access_token }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 	} catch (error) {
-		console.error("Error in spotify-token serverless function:", error);
-		res.status(500).json({
+		console.error("Error in public-auth serverless function:", error);
+		return new Response(JSON.stringify({
 			error: "Failed to get public access token via serverless function.",
-		});
+		}), { status: 500, headers: { 'Content-Type': 'application/json' } });
 	}
 }

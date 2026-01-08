@@ -1,23 +1,27 @@
 import { Buffer } from "buffer";
+import { parse } from "cookie";
 
-export default async function handler(req, res) {
-	if (req.method !== "POST") {
-		return res.status(405).json({
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(request) {
+	if (request.method !== "POST") {
+		return new Response(JSON.stringify({
 			error: "Method Not Allowed",
 			message: "This endpoint only supports POST requests.",
-		});
+		}), { status: 405, headers: { 'Content-Type': 'application/json' } });
 	}
 
 	const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 	const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 	const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
-	console.log("Backend REDIRECT_URI received:", REDIRECT_URI); // <<< Add this
 
 	if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
-		return res.status(500).json({
+		return new Response(JSON.stringify({
 			error: "Server configuration error",
 			message: "Missing Spotify API credentials or Redirect URI.",
-		});
+		}), { status: 500, headers: { 'Content-Type': 'application/json' } });
 	}
 
 	const authHeaderString = Buffer.from(
@@ -27,38 +31,49 @@ export default async function handler(req, res) {
 	const requestBody = new URLSearchParams();
 	let isRefresh = false;
 
-	if (req.body && req.body.authorizationCode) {
+	// Parse cookies from the Request object
+	const cookieHeader = request.headers.get('cookie') || "";
+	const cookies = parse(cookieHeader);
+	const refreshTokenFromCookie = cookies.spotify_refresh_token;
+
+    // Parse body
+    let body;
+    try {
+        body = await request.json();
+    } catch (e) {
+        body = {};
+    }
+
+	if (body.authorizationCode) {
 		requestBody.append("grant_type", "authorization_code");
-		requestBody.append("code", req.body.authorizationCode);
+		requestBody.append("code", body.authorizationCode);
 		requestBody.append("redirect_uri", REDIRECT_URI);
 
-		if (req.body.codeVerifier) {
-			requestBody.append("code_verifier", req.body.codeVerifier);
+		if (body.codeVerifier) {
+			requestBody.append("code_verifier", body.codeVerifier);
 		} else {
-			return res.status(400).json({
+			return new Response(JSON.stringify({
 				error: "Bad Request",
 				message: "Missing code_verifier for PKCE.",
-			});
+			}), { status: 400, headers: { 'Content-Type': 'application/json' } });
 		}
-	} else if (req.body && req.body.refreshToken) {
+	} else if (refreshTokenFromCookie) {
 		requestBody.append("grant_type", "refresh_token");
-		requestBody.append("refresh_token", req.body.refreshToken);
+		requestBody.append("refresh_token", refreshTokenFromCookie);
+		isRefresh = true;
+	} else if (body.refreshToken) {
+		// Fallback
+		requestBody.append("grant_type", "refresh_token");
+		requestBody.append("refresh_token", body.refreshToken);
 		isRefresh = true;
 	} else {
-		return res.status(400).json({
+		return new Response(JSON.stringify({
 			error: "Bad Request",
-			message:
-				"Missing authorizationCode or refreshToken in request body.",
-		});
+			message: "Missing authorizationCode or session cookie.",
+		}), { status: 400, headers: { 'Content-Type': 'application/json' } });
 	}
 
 	try {
-		console.log(
-			"Backend redirect URI being sent to Spotify:",
-			REDIRECT_URI
-		);
-		console.log("Backend requestBody toString():", requestBody.toString());
-
 		const spotifyResponse = await fetch(
 			"https://accounts.spotify.com/api/token",
 			{
@@ -73,33 +88,34 @@ export default async function handler(req, res) {
 
 		const data = await spotifyResponse.json();
 
-		if (!spotifyResponse.ok) {
-			console.error("Spotify API Refresh Token Error:", data);
-		} else {
-			console.log("Spotify API Refresh Token Success Response:", data);
-		}
-
 		if (spotifyResponse.ok) {
-			if (isRefresh) {
-				res.status(200).json({
-					access_token: data.access_token,
-					refresh_token: data.refresh_token || req.body.refreshToken,
-				});
-			} else {
-				res.status(200).json({
-					access_token: data.access_token,
-					refresh_token: data.refresh_token,
-				});
+			const newRefreshToken = data.refresh_token || refreshTokenFromCookie || body.refreshToken;
+			
+            const headers = new Headers({ 'Content-Type': 'application/json' });
+
+			// Set refresh token in an HttpOnly cookie
+			if (newRefreshToken) {
+                headers.append('Set-Cookie', `spotify_refresh_token=${newRefreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24 * 30}`);
 			}
+
+			return new Response(JSON.stringify({
+				access_token: data.access_token,
+				expires_in: data.expires_in
+			}), { status: 200, headers: headers });
+
 		} else {
-			console.error("Spotify API Error (Auth):", data);
-			res.status(spotifyResponse.status).json(data);
+            const headers = new Headers({ 'Content-Type': 'application/json' });
+
+			// If refresh token is invalid, clear the cookie
+			if (isRefresh) {
+                headers.append('Set-Cookie', 'spotify_refresh_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');
+			}
+			return new Response(JSON.stringify(data), { status: spotifyResponse.status, headers: headers });
 		}
 	} catch (error) {
-		console.error("Serverless Function Error (Auth):", error);
-		res.status(500).json({
+		return new Response(JSON.stringify({
 			error: "Internal Server Error",
 			message: error.message,
-		});
+		}), { status: 500, headers: { 'Content-Type': 'application/json' } });
 	}
 }
