@@ -1,13 +1,10 @@
-import Tracklist from "./Tracklist";
+import Tracklist from "@/components/Tracklist";
 
-function SearchResults({tracks, togglePlaylist}) {
+function SearchResults({ tracks, togglePlaylist }) {
 	return (
 		<div>
 			<h2>Search Results</h2>
-			<Tracklist
-				togglePlaylist={togglePlaylist}
-				tracks={tracks}
-			/>
+			<Tracklist togglePlaylist={togglePlaylist} tracks={tracks} />
 		</div>
 	);
 }

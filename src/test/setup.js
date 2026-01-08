@@ -7,11 +7,14 @@ import path from "path";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.development.local") });
 
 // Polyfill import.meta.env
+const VITE_SPOTIFY_CLIENT_ID = process.env.VITE_SPOTIFY_CLIENT_ID || "mock_client_id";
+const VITE_SPOTIFY_REDIRECT_URI = process.env.VITE_SPOTIFY_REDIRECT_URI || "http://localhost:5173";
+
 if (typeof import.meta.env === 'undefined') {
     Object.defineProperty(import.meta, 'env', {
         value: {
-            VITE_SPOTIFY_CLIENT_ID: process.env.VITE_SPOTIFY_CLIENT_ID,
-            VITE_SPOTIFY_REDIRECT_URI: process.env.VITE_SPOTIFY_REDIRECT_URI,
+            VITE_SPOTIFY_CLIENT_ID,
+            VITE_SPOTIFY_REDIRECT_URI,
             BASE_URL: '/',
             MODE: 'test',
             DEV: true,
@@ -22,8 +25,8 @@ if (typeof import.meta.env === 'undefined') {
 } else {
     // If it exists, merge our env vars into it
     Object.assign(import.meta.env, {
-         VITE_SPOTIFY_CLIENT_ID: process.env.VITE_SPOTIFY_CLIENT_ID,
-         VITE_SPOTIFY_REDIRECT_URI: process.env.VITE_SPOTIFY_REDIRECT_URI,
+         VITE_SPOTIFY_CLIENT_ID,
+         VITE_SPOTIFY_REDIRECT_URI,
     });
 }
 

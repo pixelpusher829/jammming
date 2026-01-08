@@ -1,20 +1,20 @@
-import Track from "./Track";
+import Track from "@/components/Track";
 
 function Tracklist({ tracks, togglePlaylist }) {
-	const resultsList = tracks.filter((track) => !track.isInPlaylist)
+	const resultsList = tracks.filter((track) => !track.isInPlaylist);
 	return (
 		<div>
-			{resultsList.map((track) => 
-					<Track
-						key={track.id}
-						id={track.id}
-						name={track.name}
-						artists={track.artists}
-						album={track.album}
-						isInPlaylist={track.isInPlaylist}
-						togglePlaylist={togglePlaylist}
-					/>
-				)}
+			{resultsList.map((track) => (
+				<Track
+					key={track.id}
+					id={track.id}
+					name={track.name}
+					artists={track.artists}
+					album={track.album}
+					isInPlaylist={track.isInPlaylist}
+					togglePlaylist={togglePlaylist}
+				/>
+			))}
 		</div>
 	);
 }

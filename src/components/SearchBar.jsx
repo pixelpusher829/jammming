@@ -1,15 +1,13 @@
+import { useState } from "react";
+import styles from "@/styles/modules/SearchBar.module.css";
 
-import styles from "../styles/modules/SearchBar.module.css";
-import {useState} from "react";
-
-function SearchBar({handleSearch}) {
+function SearchBar({ handleSearch }) {
 	const [searchTerm, setSearchTerm] = useState("");
 
-	function handleSubmit(e){
+	function handleSubmit(e) {
 		e.preventDefault();
 		handleSearch(searchTerm);
 	}
-
 
 	return (
 		<form className={styles.searchbar} onSubmit={handleSubmit}>
