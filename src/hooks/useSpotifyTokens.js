@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function useSpotifyTokens() {
 	const [publicAccessToken, setPublicAccessToken] = useState(null);
@@ -7,7 +7,7 @@ export function useSpotifyTokens() {
 	const [isProcessingAuth, setIsProcessingAuth] = useState(false);
 	const initialRefreshAttempted = useRef(false);
 
-	const saveUserTokens = useCallback((token, expiresIn) => {
+	const saveUserTokens = (token, expiresIn) => {
 		const expiryTime = Date.now() + expiresIn * 1000 - 5 * 60 * 1000;
 		setUserAccessToken(token);
 		setExpiresAt(expiryTime);
@@ -15,17 +15,17 @@ export function useSpotifyTokens() {
 		localStorage.setItem("spotify_access_token", token);
 		localStorage.setItem("spotify_token_expires_at", expiryTime);
 		localStorage.setItem("spotify_logged_in", "true");
-	}, []);
+	};
 
-	const clearUserTokens = useCallback(() => {
+	const clearUserTokens = () => {
 		setUserAccessToken(null);
 		setExpiresAt(0);
 		localStorage.removeItem("spotify_access_token");
 		localStorage.removeItem("spotify_token_expires_at");
 		localStorage.removeItem("spotify_logged_in");
-	}, []);
+	};
 
-	const refreshAccessToken = useCallback(async () => {
+	const refreshAccessToken = async () => {
 		setIsProcessingAuth(true);
 		try {
 			const response = await fetch("/api/spotify-auth", {
@@ -44,9 +44,9 @@ export function useSpotifyTokens() {
 		} finally {
 			setIsProcessingAuth(false);
 		}
-	}, [saveUserTokens, clearUserTokens]);
+	};
 
-	const getPublicAccessToken = useCallback(async () => {
+	const getPublicAccessToken = async () => {
 		setIsProcessingAuth(true);
 		try {
 			const response = await fetch("/api/public-auth", {
@@ -66,9 +66,9 @@ export function useSpotifyTokens() {
 		} finally {
 			setIsProcessingAuth(false);
 		}
-	}, []);
+	};
 
-	const exchangeAuthorizationCodeForTokens = useCallback(
+	const exchangeAuthorizationCodeForTokens = 
 		async (code) => {
 			setIsProcessingAuth(true);
 			const codeVerifier = localStorage.getItem("code_verifier");
@@ -105,9 +105,7 @@ export function useSpotifyTokens() {
 			} finally {
 				setIsProcessingAuth(false);
 			}
-		},
-		[saveUserTokens, clearUserTokens],
-	);
+		};
 
 
 	useEffect(() => {

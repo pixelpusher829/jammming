@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function useSpotifyProfile(makeAuthenticatedRequest, userAccessToken) {
 	const [userProfileId, setUserProfileId] = useState(null);
 
-	const getUserProfileId = useCallback(async () => {
+	const getUserProfileId = async () => {
 		try {
 			const response = await makeAuthenticatedRequest("me", "GET", null);
 			if (response?.id) {
@@ -12,7 +12,7 @@ export function useSpotifyProfile(makeAuthenticatedRequest, userAccessToken) {
 		} catch (error) {
 			console.error("Error fetching user profile ID:", error);
 		}
-	}, [makeAuthenticatedRequest]);
+	};
 
 	useEffect(() => {
 		if (userAccessToken && !userProfileId) {

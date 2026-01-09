@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import {
 	base64encode,
 	generateRandomString,
@@ -9,7 +8,7 @@ export function useSpotifyLogin() {
 	const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 	const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
 
-	const spotifyLogin = useCallback(async () => {
+	const spotifyLogin = async () => {
 		const codeVerifier = generateRandomString(64);
 		const hashed = await sha256(codeVerifier);
 		const codeChallenge = base64encode(hashed);
@@ -30,7 +29,7 @@ export function useSpotifyLogin() {
 
 		authUrl.search = new URLSearchParams(params).toString();
 		window.location.href = authUrl.toString();
-	}, [clientId, redirectUri]);
+	};
 
 	return { spotifyLogin };
 }

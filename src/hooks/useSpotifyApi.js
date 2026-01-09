@@ -1,12 +1,10 @@
-import { useCallback } from "react";
-
 export function useSpotifyApi(
 	userAccessToken,
 	publicAccessToken,
 	refreshAccessToken,
 	getPublicAccessToken,
 ) {
-	const makeAuthenticatedRequest = useCallback(
+	const makeAuthenticatedRequest = 
 		async (url, method, data) => {
 			const currentAccessToken = userAccessToken || publicAccessToken;
 
@@ -56,14 +54,7 @@ export function useSpotifyApi(
 				console.error("Error in makeAuthenticatedRequest:", error);
 				throw error;
 			}
-		},
-		[
-			userAccessToken,
-			publicAccessToken,
-			refreshAccessToken,
-			getPublicAccessToken,
-		],
-	);
+		}
 
 	return { makeAuthenticatedRequest };
 }
