@@ -31,11 +31,17 @@ describe("usePlaylist Hook with Context", () => {
 		vi.clearAllMocks();
 		// Manually mock localStorage if needed, or just use the global one if in jsdom
 		const store = {};
-		vi.stubGlobal('localStorage', {
+		vi.stubGlobal("localStorage", {
 			getItem: vi.fn((key) => store[key] || null),
-			setItem: vi.fn((key, value) => { store[key] = value.toString(); }),
-			removeItem: vi.fn((key) => { delete store[key]; }),
-			clear: vi.fn(() => { for (const key in store) delete store[key]; })
+			setItem: vi.fn((key, value) => {
+				store[key] = value.toString();
+			}),
+			removeItem: vi.fn((key) => {
+				delete store[key];
+			}),
+			clear: vi.fn(() => {
+				for (const key in store) delete store[key];
+			}),
 		});
 	});
 
@@ -50,11 +56,11 @@ describe("usePlaylist Hook with Context", () => {
 		const { result } = renderHook(() => usePlaylist(), { wrapper });
 
 		const newInfo = { name: "My New Playlist", id: "" };
-		
+
 		await act(async () => {
 			result.current.setPlaylistInfo(newInfo);
 		});
-		
+
 		expect(result.current.playlistInfo.name).toBe("My New Playlist");
 	});
 
@@ -66,11 +72,14 @@ describe("usePlaylist Hook with Context", () => {
 		await act(async () => {
 			result.current.handleButtonEffect();
 		});
-		
+
 		expect(result.current.isActiveEffect).toBe(true);
 
-		await waitFor(() => {
-			expect(result.current.isActiveEffect).toBe(false);
-		}, { timeout: 1000 });
+		await waitFor(
+			() => {
+				expect(result.current.isActiveEffect).toBe(false);
+			},
+			{ timeout: 1000 },
+		);
 	});
 });

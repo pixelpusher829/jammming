@@ -1,32 +1,30 @@
-.signInBanner{
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.266);
-    padding: 2rem 0rem;
-    p{
-        font-size: 1.2rem;
-        text-align: center;
-        display: inline-block;
-    }
-    button{
-        padding: 0.8rem 1.5rem;
-        background: var(--primary-color);
-        border-radius: 2rem;
-        transition: 400ms;
-        outline-color: var(--accent-color);
-        outline: 0px solid transparent;
-        border: none;
-        cursor: pointer;
-        color: white;
-        &:hover{
-            background: #1db954;
-            transition: 400ms;
-        }
-    }
-
+.signInBanner {
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	justify-content: center;
+	align-items: center;
+	background-color: rgba(0, 0, 0, 0.266);
+	padding: 2rem 0rem;
+	p {
+		font-size: 1.2rem;
+		text-align: center;
+		display: inline-block;
+	}
+	button {
+		padding: 0.8rem 1.5rem;
+		background: var(--primary-color);
+		border-radius: 2rem;
+		transition: 400ms;
+		outline: 0px solid transparent var(--accent-color);
+		border: none;
+		cursor: pointer;
+		color: white;
+		&:hover {
+			background: #1db954;
+			transition: 400ms;
+		}
+	}
 }

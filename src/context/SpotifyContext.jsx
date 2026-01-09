@@ -14,9 +14,7 @@ export function SpotifyProvider({ children }) {
 	};
 
 	return (
-		<SpotifyContext.Provider value={value}>
-			{children}
-		</SpotifyContext.Provider>
+		<SpotifyContext.Provider value={value}>{children}</SpotifyContext.Provider>
 	);
 }
 

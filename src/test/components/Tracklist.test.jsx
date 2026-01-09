@@ -9,7 +9,7 @@ vi.mock("@/styles/modules/Track.module.css", () => ({
 
 // Mock Track component to isolate Tracklist testing
 vi.mock("@/components/Track", () => ({
-	default: ({ name, isInPlaylist}) => (
+	default: ({ name, isInPlaylist }) => (
 		<div data-testid="track">
 			{name} - {isInPlaylist ? "In Playlist" : "Not In Playlist"}
 		</div>

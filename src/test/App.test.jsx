@@ -9,7 +9,9 @@ vi.mock("@/styles/modules/SearchBar.module.css", () => ({ default: {} }));
 vi.mock("@/styles/modules/Playlist.module.css", () => ({ default: {} }));
 vi.mock("@/styles/modules/SearchResults.module.css", () => ({ default: {} }));
 vi.mock("@/styles/modules/Tracklist.modules.css", () => ({ default: {} }));
-vi.mock("@/styles/modules/Track.module.css", () => ({ default: { track: "track" } }));
+vi.mock("@/styles/modules/Track.module.css", () => ({
+	default: { track: "track" },
+}));
 
 const mockSearchResponse = {
 	tracks: {
@@ -103,7 +105,9 @@ describe("App Integration Tests", () => {
 		// 3. Create playlist (skipped getPlaylist check because ID is empty)
 		global.fetch.mockResolvedValueOnce(mockFetchResponse({ id: "new-id" }));
 		// 4. Add tracks
-		global.fetch.mockResolvedValueOnce(mockFetchResponse({ snapshot_id: "snap-123" }));
+		global.fetch.mockResolvedValueOnce(
+			mockFetchResponse({ snapshot_id: "snap-123" }),
+		);
 
 		render(<App />);
 

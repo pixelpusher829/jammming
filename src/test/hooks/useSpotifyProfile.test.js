@@ -4,7 +4,9 @@ import { useSpotifyProfile } from "@/hooks/useSpotifyProfile";
 
 describe("useSpotifyProfile Hook", () => {
 	it("fetches profile id when token is provided", async () => {
-		const makeAuthenticatedRequest = vi.fn().mockResolvedValue({ id: "user-123" });
+		const makeAuthenticatedRequest = vi
+			.fn()
+			.mockResolvedValue({ id: "user-123" });
 
 		let result;
 		await act(async () => {

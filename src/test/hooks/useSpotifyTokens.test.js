@@ -23,7 +23,8 @@ describe("useSpotifyTokens Hook", () => {
 		global.fetch = vi.fn().mockResolvedValue({
 			ok: true,
 			json: () => Promise.resolve({ access_token: "test_token" }),
-			text: () => Promise.resolve(JSON.stringify({ access_token: "test_token" })),
+			text: () =>
+				Promise.resolve(JSON.stringify({ access_token: "test_token" })),
 		});
 	});
 
@@ -39,7 +40,10 @@ describe("useSpotifyTokens Hook", () => {
 			result = rendered.result;
 		});
 
-		expect(global.fetch).toHaveBeenCalledWith("/api/public-auth", expect.anything());
+		expect(global.fetch).toHaveBeenCalledWith(
+			"/api/public-auth",
+			expect.anything(),
+		);
 		expect(result.current.publicAccessToken).toBe("test_token");
 	});
 

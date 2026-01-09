@@ -68,45 +68,39 @@ export function useSpotifyTokens() {
 		}
 	};
 
-	const exchangeAuthorizationCodeForTokens = 
-		async (code) => {
-			setIsProcessingAuth(true);
-			const codeVerifier = localStorage.getItem("code_verifier");
-			if (!codeVerifier) {
-				setIsProcessingAuth(false);
-				return;
-			}
+	const exchangeAuthorizationCodeForTokens = async (code) => {
+		setIsProcessingAuth(true);
+		const codeVerifier = localStorage.getItem("code_verifier");
+		if (!codeVerifier) {
+			setIsProcessingAuth(false);
+			return;
+		}
 
-			try {
-				const response = await fetch("/api/spotify-auth", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						authorizationCode: code,
-						codeVerifier: codeVerifier,
-					}),
-				});
+		try {
+			const response = await fetch("/api/spotify-auth", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					authorizationCode: code,
+					codeVerifier: codeVerifier,
+				}),
+			});
 
-				if (!response.ok) throw new Error("Failed to exchange code.");
+			if (!response.ok) throw new Error("Failed to exchange code.");
 
-				const data = await response.json();
-				localStorage.removeItem("code_verifier");
-				saveUserTokens(data.access_token, data.expires_in);
+			const data = await response.json();
+			localStorage.removeItem("code_verifier");
+			saveUserTokens(data.access_token, data.expires_in);
 
-				window.history.replaceState(
-					{},
-					document.title,
-					window.location.pathname,
-				);
-			} catch (error) {
-				console.error("Error during token exchange:", error);
-				clearUserTokens();
-				localStorage.clear();
-			} finally {
-				setIsProcessingAuth(false);
-			}
-		};
-
+			window.history.replaceState({}, document.title, window.location.pathname);
+		} catch (error) {
+			console.error("Error during token exchange:", error);
+			clearUserTokens();
+			localStorage.clear();
+		} finally {
+			setIsProcessingAuth(false);
+		}
+	};
 
 	useEffect(() => {
 		if (isProcessingAuth) return;

@@ -6,8 +6,13 @@ import SignInBanner from "@/components/SignInBanner";
 import { SpotifyProvider, useSpotifyContext } from "@/context/SpotifyContext";
 
 function AppContent() {
-	const { userAccessToken, spotifyLogin, handleSearch, tracks, togglePlaylist } =
-		useSpotifyContext();
+	const {
+		userAccessToken,
+		spotifyLogin,
+		handleSearch,
+		tracks,
+		togglePlaylist,
+	} = useSpotifyContext();
 
 	return (
 		<>
