@@ -1,17 +1,23 @@
 import { ExternalLink } from "lucide-react";
+import defaultAlbumArt from "@/assets/placeholder.webp";
 import styles from "@/styles/modules/Track.module.css";
 
 function Track({ track, isInPlaylist, togglePlaylist }) {
 	const { name, artists, album, id, external_urls } = track;
 
-	const albumArt = album?.images?.[2]?.url || album?.images?.[1]?.url || "";
+	const albumArt =
+		album?.images?.[2]?.url || album?.images?.[1]?.url || defaultAlbumArt;
 	const spotifyUrl = external_urls?.spotify;
 
 	return (
 		<div className={styles.track}>
 			<div className={styles.trackContent}>
 				<div className={styles.imageContainer}>
-					<img src={albumArt} alt={album.name} className={styles.albumArt} />
+					<img
+						src={albumArt}
+						alt={album?.name || "Album Art"}
+						className={styles.albumArt}
+					/>
 					{spotifyUrl && (
 						<a
 							href={spotifyUrl}
@@ -21,7 +27,7 @@ function Track({ track, isInPlaylist, togglePlaylist }) {
 							title="Open in Spotify"
 						>
 							<span className={styles.spotifyIcon}>
-								<ExternalLink strokeWidth={2} size={30}/>
+								<ExternalLink strokeWidth={2} size={30} />
 							</span>
 						</a>
 					)}
@@ -29,7 +35,7 @@ function Track({ track, isInPlaylist, togglePlaylist }) {
 				<div className={styles.trackInfo}>
 					<h3>{name}</h3>
 					<p>
-						{artists.map((artist) => artist.name).join(", ")} | {album.name}
+						{artists.map((artist) => artist.name).join(", ")} | {album?.name}
 					</p>
 				</div>
 			</div>
