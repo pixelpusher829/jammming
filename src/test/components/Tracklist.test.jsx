@@ -2,16 +2,16 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import Tracklist from "@/components/Tracklist";
 
-// Mock CSS module (Track component uses it)
+// Mock CSS module
 vi.mock("@/styles/modules/Track.module.css", () => ({
 	default: { track: "track" },
 }));
 
-// Mock Track component to isolate Tracklist testing
+// Mock Track component
 vi.mock("@/components/Track", () => ({
-	default: ({ name, isInPlaylist }) => (
+	default: ({ track, isInPlaylist }) => (
 		<div data-testid="track">
-			{name} - {isInPlaylist ? "In Playlist" : "Not In Playlist"}
+			{track.name} - {isInPlaylist ? "In Playlist" : "Not In Playlist"}
 		</div>
 	),
 }));

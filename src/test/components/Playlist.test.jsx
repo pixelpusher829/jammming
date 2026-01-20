@@ -10,30 +10,32 @@ vi.mock("@/styles/modules/Playlist.module.css", () => ({
 		saveButton: "saveButton",
 		buttonEffect: "buttonEffect",
 		success: "success",
+		actionContainer: "actionContainer",
 		fadeOut: "fadeOut",
+		viewLink: "viewLink"
 	},
 }));
 vi.mock("@/styles/modules/Track.module.css", () => ({
 	default: { track: "track" },
 }));
 
-// Mock Track to simplify testing
+// Mock Track
 vi.mock("@/components/Track", () => ({
-	default: ({ name, togglePlaylist, id }) => (
+	default: ({ track, togglePlaylist }) => (
 		<div data-testid="track-in-playlist">
-			{name}
-			<button onClick={() => togglePlaylist(id)} type="button">
+			{track.name}
+			<button onClick={() => togglePlaylist(track.id)} type="button">
 				Remove
 			</button>
 		</div>
 	),
 }));
 
-// Mock useSpotify and useTracks since SpotifyProvider uses them
+// Mock Spotify Hooks
 vi.mock("@/hooks/useSpotify", () => ({
 	useSpotify: () => ({
 		userAccessToken: "token",
-		userProfileId: "user",
+		userProfile: { id: "user", product: "premium" },
 		spotifyLogin: vi.fn(),
 		makeAuthenticatedRequest: vi.fn(),
 	}),

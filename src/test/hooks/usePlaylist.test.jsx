@@ -48,8 +48,9 @@ describe("usePlaylist Hook with Context", () => {
 	it("initializes with default state", () => {
 		const { result } = renderHook(() => usePlaylist(), { wrapper });
 
-		expect(result.current.playlistInfo).toEqual({ name: "", id: "" });
+		expect(result.current.playlistInfo).toEqual({ name: "", id: "", url: "" });
 		expect(result.current.playlistButtonText).toBe("Save to Spotify");
+		expect(result.current.showSuccess).toBe(false);
 	});
 
 	it("updates playlist info state", async () => {

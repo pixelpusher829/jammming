@@ -9,6 +9,7 @@ function Playlist({ togglePlaylist }) {
 		playlistButtonText,
 		isActiveEffect,
 		fadeKey,
+		showSuccess,
 		handleSaveToSpotify,
 		handleButtonEffect,
 		tracks,
@@ -36,25 +37,34 @@ function Playlist({ togglePlaylist }) {
 					<>
 						{tracksInPlaylist.map((track) => (
 							<Track
-								id={track.id}
 								key={track.id}
-								name={track.name}
-								artists={track.artists}
-								album={track.album}
+								track={track}
 								isInPlaylist={track.isInPlaylist}
 								togglePlaylist={togglePlaylist}
 							/>
 						))}
-						<button
-							onClick={handleButtonEffect}
-							className={`${styles.saveButton} ${
-								isActiveEffect ? styles.buttonEffect : ""
-							}`}
-							type="submit"
-						>
-							{playlistButtonText}
-						</button>
-						{playlistInfo.id && (
+						<div className={styles.actionContainer}>
+							<button
+								onClick={handleButtonEffect}
+								className={`${styles.saveButton} ${
+									isActiveEffect ? styles.buttonEffect : ""
+								}`}
+								type="submit"
+							>
+								{playlistButtonText}
+							</button>
+							{playlistInfo.url && (
+								<a
+									href={playlistInfo.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className={styles.viewLink}
+								>
+									View on Spotify
+								</a>
+							)}
+						</div>
+						{showSuccess && (
 							<p
 								key={fadeKey}
 								className={`${styles.success} ${styles.fadeOut}`}

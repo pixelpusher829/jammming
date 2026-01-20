@@ -13,11 +13,13 @@ export function usePlaylist() {
 
 	const [isActiveEffect, setIsActiveEffect] = useState(false);
 	const [fadeKey, setFadeKey] = useState(0);
+	const [showSuccess, setShowSuccess] = useState(false);
 	const [playlistButtonText, setPlaylistButtonText] =
 		useState("Login to Spotify");
 	const [playlistInfo, setPlaylistInfo] = useState({
 		name: "",
 		id: "",
+		url: "",
 	});
 
 	// Restore playlist state from local storage on mount
@@ -62,7 +64,7 @@ export function usePlaylist() {
 	async function createNewPlaylist() {
 		const url = `users/${userProfileId}/playlists`;
 		const body = {
-			name: playlistInfo.name,
+			name: playlistInfo.name || "My New Playlist",
 			description: "Created with Jammming",
 			public: false,
 		};
@@ -82,7 +84,10 @@ export function usePlaylist() {
 	}
 
 	function triggerFadeOut() {
+		setShowSuccess(true);
 		setFadeKey((prevKey) => prevKey + 1);
+		// Hide message from DOM after animation completes (3s)
+		setTimeout(() => setShowSuccess(false), 3000);
 	}
 
 	async function handleSaveToSpotify(e) {
@@ -96,20 +101,29 @@ export function usePlaylist() {
 		}
 
 		try {
-			const response = await getPlaylist(playlistInfo.id);
-			const existingPlaylist = !!response;
+			const existingPlaylistData = await getPlaylist(playlistInfo.id);
 
-			if (!existingPlaylist) {
+			if (!existingPlaylistData) {
 				const newPlaylist = await createNewPlaylist();
 				if (newPlaylist?.id) {
-					setPlaylistInfo((prev) => ({ ...prev, id: newPlaylist.id }));
+					setPlaylistInfo((prev) => ({ 
+						...prev, 
+						id: newPlaylist.id,
+						url: newPlaylist.external_urls?.spotify
+					}));
 					const response = await updateSpotifyPlaylist(newPlaylist.id);
 					if (response) triggerFadeOut();
 				}
 			} else {
 				const response = await updateSpotifyPlaylist(playlistInfo.id);
 				await updatePlaylistName(playlistInfo.id);
-				if (response) triggerFadeOut();
+				if (response) {
+					setPlaylistInfo((prev) => ({ 
+						...prev, 
+						url: existingPlaylistData.external_urls?.spotify 
+					}));
+					triggerFadeOut();
+				}
 			}
 		} catch (error) {
 			console.error(error);
@@ -118,12 +132,16 @@ export function usePlaylist() {
 
 	return {
 		playlistInfo,
-		setPlaylistInfo,
+		setPlaylistInfo: (info) => {
+			setShowSuccess(false); // Hide success message if user starts editing
+			setPlaylistInfo(info);
+		},
 		playlistButtonText,
 		isActiveEffect,
 		fadeKey,
+		showSuccess,
 		handleSaveToSpotify,
 		handleButtonEffect,
-		tracks, // Re-exporting for the component
+		tracks,
 	};
 }

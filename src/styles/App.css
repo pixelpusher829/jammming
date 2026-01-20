@@ -13,7 +13,7 @@
 	border: 1px solid rgba(255, 255, 255, 0.188);
 }
 
-@media screen and (max-width: 850px) {
+@media screen and (max-width: 950px) {
 	.contents {
 		grid-template-columns: 1fr;
 		& > div {

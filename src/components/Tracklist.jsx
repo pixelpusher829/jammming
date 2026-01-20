@@ -7,10 +7,7 @@ function Tracklist({ tracks, togglePlaylist }) {
 			{resultsList.map((track) => (
 				<Track
 					key={track.id}
-					id={track.id}
-					name={track.name}
-					artists={track.artists}
-					album={track.album}
+					track={track}
 					isInPlaylist={track.isInPlaylist}
 					togglePlaylist={togglePlaylist}
 				/>

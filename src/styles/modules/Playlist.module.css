@@ -11,13 +11,20 @@
 
 @keyframes fadeOutAnimation {
 	0% {
-		opacity: 1;
+		opacity: 0;
+		transform: translateX(-1rem);
 	}
-	50% {
+	20% {
 		opacity: 1;
+		transform: translateX(0);
+	}
+	80% {
+		opacity: 1;
+		transform: translateX(0);
 	}
 	100% {
 		opacity: 0;
+		transform: translateX(2rem);
 	}
 }
 
@@ -37,20 +44,68 @@
 		}
 	}
 
+	.actionContainer {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 1rem;
+		margin-top: 1.5rem;
+		width: 100%;
+	}
+
+	.saveButton, .viewLink {
+		width: calc(50% - 0.5rem);
+		padding: 0.6rem 0;
+		text-align: center;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 500;
+		border-radius: 2rem;
+		transition: 400ms;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+
+	.saveButton {
+		background: var(--primary-color);
+		border: none;
+		color: white;
+		&:hover {
+			background: var(--accent-color);
+		}
+	}
+
+	.viewLink {
+		color: white;
+		background-color: rgba(255, 255, 255, 0.1);
+		text-decoration: none;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+
+		&:hover {
+			background-color: #1db954;
+			border-color: #1db954;
+		}
+	}
+
 	.buttonEffect {
 		animation: clickPulse 0.5s ease-out forwards;
 	}
 
 	.success {
-		color: rgb(9, 237, 112);
-		border-radius: 0.25rem;
-		padding: 0.5rem 0.5rem;
-		font-weight: 400;
+		color: #1db954;
+		border-radius: 2rem;
+		transform-origin: left;
+		display: inline-block;
+		padding: 0.8rem;
+		font-weight: 600;
+		font-size: 1rem;;
+		text-align: left;
 		margin-top: 1rem;
 	}
 
 	.fadeOut {
-		animation: fadeOutAnimation 3s forwards;
+		animation: fadeOutAnimation 2s forwards;
 	}
 
 	& input {

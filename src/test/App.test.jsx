@@ -20,14 +20,14 @@ const mockSearchResponse = {
 				id: "1",
 				name: "Song 1",
 				artists: [{ name: "Artist 1" }],
-				album: { name: "Album 1" },
+				album: { name: "Album 1", images: [] },
 				uri: "spotify:track:1",
 			},
 			{
 				id: "2",
 				name: "Song 2",
 				artists: [{ name: "Artist 2" }],
-				album: { name: "Album 2" },
+				album: { name: "Album 2", images: [] },
 				uri: "spotify:track:2",
 			},
 		],
@@ -103,7 +103,10 @@ describe("App Integration Tests", () => {
 		// 2. Search
 		global.fetch.mockResolvedValueOnce(mockFetchResponse(mockSearchResponse));
 		// 3. Create playlist (skipped getPlaylist check because ID is empty)
-		global.fetch.mockResolvedValueOnce(mockFetchResponse({ id: "new-id" }));
+		global.fetch.mockResolvedValueOnce(mockFetchResponse({ 
+			id: "new-id",
+			external_urls: { spotify: "http://playlist.url" }
+		}));
 		// 4. Add tracks
 		global.fetch.mockResolvedValueOnce(
 			mockFetchResponse({ snapshot_id: "snap-123" }),
