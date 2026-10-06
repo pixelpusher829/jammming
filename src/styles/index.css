@@ -1,45 +1,125 @@
-@import url("https://cdn-uicons.flaticon.com/3.0.0/uicons-bold-rounded/css/uicons-bold-rounded.css");
-@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-@import "./typography.css";
 @import "./reset.css";
 
 :root {
-	--primary-color: #5708e9;
-	--accent-color: rgb(1, 173, 235);
-}
+	color-scheme: dark;
 
-h2 {
-	margin-bottom: 1rem;
+	/* Text and icon colours are solid (not rgba) so overlapping icon strokes
+	   don't render darker where they cross */
+	--color-text: #f5f3ff;
+	--color-text-muted: #b6aec9;
+	--color-text-subtle: #877e9c;
+	--color-text-disabled: #534a68;
+
+	--color-bg: #110b1e;
+	--color-primary: #8b5cf6;
+	--color-primary-strong: #6d28d9;
+	--color-primary-soft: #c4b5fd;
+	--color-accent: #22d3ee;
+	--color-spotify: #1ed760;
+	--color-success: #4ade80;
+	--color-danger: #fca5a5;
+	--color-danger-bg: rgba(220, 38, 38, 0.18);
+	--color-focus: #67e8f9;
+
+	/* Frosted glass */
+	--glass-bg: hsla(250, 24%, 19%, 0.5);
+	--glass-bg-strong: rgba(255, 255, 255, 0.1);
+	--glass-blur: blur(30px) saturate(150%);
+	--glass-edge: linear-gradient(
+		155deg,
+		rgba(255, 255, 255, 0.4),
+		rgba(255, 255, 255, 0.12) 35%,
+		rgba(255, 255, 255, 0.08) 65%,
+		rgba(255, 255, 255, 0.22)
+	);
+	--glass-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.08),
+		0 30px 60px -30px rgba(0, 0, 0, 0.7);
+	--glass-hover: rgba(255, 255, 255, 0.07);
+	--glass-active: rgba(255, 255, 255, 0.12);
+	--divider: rgba(255, 255, 255, 0.1);
+
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 24px;
+	--radius-pill: 999px;
+
+	--header-height: 68px;
+	--tabs-height: 64px;
+	--player-height: 80px;
+	--transition: 160ms ease;
+
+	--font-sans:
+		"Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-	background-image: url(../assets/background.jpg);
-	background-repeat: no-repeat;
-	background-size: cover 100% 100%;
-	background-position: center center;
-	background-attachment: fixed;
-	&::before {
-		background-color: rgba(74, 14, 139, 0.63);
-		content: "";
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: -1;
-	}
-}
-header {
-	text-align: center;
-	background-color: rgba(0, 0, 0, 0.874);
-	& span {
-		color: var(--primary-color);
-	}
+	min-height: 100dvh;
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	font-family: var(--font-sans);
+	font-feature-settings: "ss01", "cv11";
 }
 
-main {
-	max-width: 1220px;
-	padding: 0 2rem;
-	margin: 2rem auto;
-	margin-top: 3rem;
+/* Background photo under a dark wash. Fixed to the viewport so the glass
+   panels have something to blur as they scroll. */
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background:
+		linear-gradient(rgba(46, 16, 96, 0.28), rgba(10, 5, 22, 0.55)),
+		url(../assets/background.jpg) center / cover no-repeat;
 }
+
+h2 {
+	font-size: 1.15rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-focus);
+	outline-offset: 2px;
+}
+
+button:disabled {
+	cursor: not-allowed;
+}
+
+::selection {
+	background: rgba(139, 92, 246, 0.5);
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Thin, translucent scrollbars to match the glass */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Overrides must beat component-level transitions, hence !important */
+/* biome-ignore-start lint/complexity/noImportantStyles: reduced-motion override */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: reduced-motion override */

@@ -1,54 +1,57 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import Track from "@/components/Track";
 
-// Mock CSS module
-vi.mock("@/styles/modules/Track.module.css", () => ({
-	default: { 
-        track: "track", 
-        trackContent: "trackContent",
-        imageContainer: "imageContainer",
-        albumArt: "albumArt",
-        spotifyLink: "spotifyLink",
-        trackInfo: "trackInfo",
-        toggleButton: "toggleButton"
-    },
-}));
+const track = {
+	id: "1",
+	name: "Test Song",
+	artists: ["Artist 1", "Artist 2"],
+	album: "Test Album",
+	image: "https://i.scdn.co/image/small.jpg",
+	durationMs: 215000,
+	explicit: true,
+	url: "https://open.spotify.com/track/1",
+};
+
+function renderTrack(props) {
+	return render(
+		<ul>
+			<Track track={track} {...props} />
+		</ul>,
+	);
+}
 
 describe("Track", () => {
-	const mockTrack = {
-		name: "Test Song",
-		artists: [{ name: "Artist 1" }],
-		album: { 
-            name: "Test Album",
-            images: [{}, {}, { url: "http://image.url" }]
-        },
-		id: "1",
-		external_urls: { spotify: "http://spotify.url" }
-	};
-
-	it("renders track information and artwork link", () => {
-		render(
-			<Track
-				track={mockTrack}
-				isInPlaylist={false}
-				togglePlaylist={() => {}}
-			/>,
-		);
-
-		expect(screen.getByText("Test Song")).toBeInTheDocument();
-		expect(screen.getByAltText("Test Album")).toHaveAttribute("src", "http://image.url");
-		expect(screen.getByRole("link")).toHaveAttribute("href", "http://spotify.url");
+	it("renders track details", () => {
+		renderTrack();
+		expect(
+			screen.getByRole("heading", { name: "Test Song" }),
+		).toBeInTheDocument();
+		expect(screen.getByText(/Artist 1, Artist 2/)).toBeInTheDocument();
+		expect(screen.getByText("3:35")).toBeInTheDocument();
+		expect(screen.getByTitle("Explicit")).toBeInTheDocument();
 	});
 
-	it("renders toggle button correctly", () => {
-		render(
-			<Track
-				track={mockTrack}
-				isInPlaylist={true}
-				togglePlaylist={() => {}}
-			/>,
+	it("links to the track on Spotify", () => {
+		renderTrack();
+		expect(
+			screen.getByRole("link", { name: /open test song on spotify/i }),
+		).toHaveAttribute("href", track.url);
+	});
+
+	it("falls back to placeholder art", () => {
+		const { container } = render(
+			<ul>
+				<Track track={{ ...track, image: null }} />
+			</ul>,
 		);
-		expect(screen.getByText("-")).toBeInTheDocument();
+		expect(container.querySelector("img").getAttribute("src")).toContain(
+			"placeholder",
+		);
+	});
+
+	it("renders the actions it is given", () => {
+		renderTrack({ actions: <button type="button">Do it</button> });
+		expect(screen.getByRole("button", { name: "Do it" })).toBeInTheDocument();
 	});
 });

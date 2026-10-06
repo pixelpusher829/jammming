@@ -1,0 +1,55 @@
+.player {
+	position: fixed;
+	left: 50%;
+	bottom: 1rem;
+	z-index: 40;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	width: min(40rem, calc(100% - 2rem));
+	padding: 0.35rem;
+	border: 1px solid rgba(255, 255, 255, 0.16);
+	border-radius: 18px;
+	background: #1f1f1f;
+	box-shadow: 0 24px 50px -16px rgba(0, 0, 0, 0.9);
+	transform: translateX(-50%);
+	animation: rise 200ms ease-out;
+}
+
+.frame {
+	flex: 1;
+	height: var(--player-height);
+	border: 0;
+	border-radius: 12px;
+	color-scheme: normal;
+}
+
+.close {
+	display: grid;
+	place-items: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	flex-shrink: 0;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--color-text-muted);
+	cursor: pointer;
+	&:hover {
+		background: var(--glass-active);
+		color: var(--color-text);
+	}
+}
+
+@keyframes rise {
+	from {
+		opacity: 0;
+		transform: translate(-50%, 12px);
+	}
+}
+
+@media (max-width: 899px) {
+	.player {
+		bottom: calc(var(--tabs-height) + 0.75rem);
+	}
+}

@@ -1,5 +1,11 @@
 import { parse } from "cookie";
 
+import {
+	clearRefreshCookies,
+	REFRESH_COOKIE,
+	refreshCookie,
+} from "./_cookies.js";
+
 export const config = {
 	runtime: "edge",
 };
@@ -33,12 +39,9 @@ function buildSpotifyAuthParams(body, cookies, redirectUri) {
 		params.append("code_verifier", body.codeVerifier);
 
 		// Case 2: Refresh Token Exchange
-	} else if (cookies.spotify_refresh_token || body.refreshToken) {
+	} else if (cookies[REFRESH_COOKIE]) {
 		params.append("grant_type", "refresh_token");
-		params.append(
-			"refresh_token",
-			cookies.spotify_refresh_token || body.refreshToken,
-		);
+		params.append("refresh_token", cookies[REFRESH_COOKIE]);
 		isRefresh = true;
 
 		// Case 3: Invalid Request
@@ -68,16 +71,16 @@ function handleRefreshToken(
 	existingRefreshToken,
 	isRefresh,
 ) {
-	const headers = new Headers({ "Content-Type": "application/json" });
+	const headers = new Headers({
+		"Content-Type": "application/json",
+		"Cache-Control": "no-store",
+	});
 
 	if (spotifyResponse.ok) {
 		const newRefreshToken = data.refresh_token || existingRefreshToken;
 
 		if (newRefreshToken) {
-			headers.append(
-				"Set-Cookie",
-				`spotify_refresh_token=${newRefreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24 * 30}`,
-			);
+			headers.append("Set-Cookie", refreshCookie(newRefreshToken));
 		}
 
 		return new Response(
@@ -91,10 +94,9 @@ function handleRefreshToken(
 
 	// If refresh failed, clear the cookie
 	if (isRefresh) {
-		headers.append(
-			"Set-Cookie",
-			"spotify_refresh_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0",
-		);
+		for (const cookie of clearRefreshCookies()) {
+			headers.append("Set-Cookie", cookie);
+		}
 	}
 
 	return new Response(JSON.stringify(data), {
@@ -119,10 +121,11 @@ export default async function handler(request) {
 	try {
 		config = getServiceConfig();
 	} catch (error) {
+		console.error(error);
 		return new Response(
 			JSON.stringify({
 				error: "Server configuration error",
-				message: error.message,
+				message: "Sign-in is not configured on this server.",
 			}),
 			{ status: 500, headers: { "Content-Type": "application/json" } },
 		);
@@ -156,8 +159,7 @@ export default async function handler(request) {
 		);
 		const data = await spotifyResponse.json();
 
-		const currentRefreshToken =
-			cookies.spotify_refresh_token || body.refreshToken;
+		const currentRefreshToken = cookies[REFRESH_COOKIE];
 		return handleRefreshToken(
 			spotifyResponse,
 			data,
@@ -165,10 +167,11 @@ export default async function handler(request) {
 			isRefresh,
 		);
 	} catch (error) {
+		console.error("Spotify token exchange failed:", error);
 		return new Response(
 			JSON.stringify({
 				error: "Internal Server Error",
-				message: error.message,
+				message: "Could not reach Spotify. Please try again.",
 			}),
 			{ status: 500, headers: { "Content-Type": "application/json" } },
 		);

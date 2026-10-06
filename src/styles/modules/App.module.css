@@ -1,0 +1,98 @@
+.app {
+	display: flex;
+	flex-direction: column;
+	min-height: 100dvh;
+}
+
+.skipLink {
+	position: absolute;
+	top: 0.5rem;
+	left: 0.5rem;
+	z-index: 100;
+	padding: 0.5rem 1rem;
+	border-radius: var(--radius-sm);
+	background: var(--color-primary);
+	color: white;
+	transform: translateY(-200%);
+	transition: transform var(--transition);
+	&:focus {
+		transform: translateY(0);
+	}
+}
+
+.main {
+	flex: 1;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+	gap: 1.5rem;
+	align-items: start;
+	width: 100%;
+	max-width: 1360px;
+	margin: 0 auto;
+	padding: 1.5rem;
+}
+
+/* Both columns are at least one viewport tall so they stay balanced */
+.resultsColumn {
+	display: flex;
+	min-height: calc(100dvh - var(--header-height) - 3rem);
+
+	& > section {
+		flex: 1;
+	}
+}
+
+/* The playlist stays in view while results scroll */
+.playlistColumn {
+	position: sticky;
+	top: calc(var(--header-height) + 1.5rem);
+	display: flex;
+	height: calc(100dvh - var(--header-height) - 3rem);
+	min-height: 28rem;
+
+	& > section {
+		flex: 1;
+	}
+}
+
+.app[data-playing] {
+	.main {
+		padding-bottom: calc(var(--player-height) + 2.5rem);
+	}
+	.playlistColumn {
+		height: calc(100dvh - var(--header-height) - var(--player-height) - 4rem);
+	}
+}
+
+.toast {
+	font-family: var(--font-sans);
+}
+
+/* Tablet and phone: one column at a time, switched by the bottom tabs */
+@media (max-width: 899px) {
+	.main {
+		grid-template-columns: minmax(0, 1fr);
+		padding: 1rem 1rem calc(var(--tabs-height) + 1.5rem);
+	}
+
+	.resultsColumn,
+	.playlistColumn {
+		position: static;
+		height: auto;
+		min-height: 0;
+	}
+
+	.app[data-tab="search"] .playlistColumn,
+	.app[data-tab="playlist"] .resultsColumn {
+		display: none;
+	}
+
+	.app[data-playing] {
+		.main {
+			padding-bottom: calc(var(--tabs-height) + var(--player-height) + 2rem);
+		}
+		.playlistColumn {
+			height: auto;
+		}
+	}
+}

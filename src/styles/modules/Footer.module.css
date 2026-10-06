@@ -1,0 +1,20 @@
+.footer {
+	padding: 0 1.5rem 1.5rem;
+	color: var(--color-text-subtle);
+	font-size: 0.78rem;
+	text-align: center;
+
+	& a {
+		color: var(--color-text-muted);
+		&:hover {
+			color: var(--color-spotify);
+		}
+	}
+}
+
+/* The bottom tabs take this space on small screens */
+@media (max-width: 899px) {
+	.footer {
+		display: none;
+	}
+}

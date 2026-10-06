@@ -1,0 +1,51 @@
+.panel {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.discover {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.6rem;
+	max-width: 34rem;
+	padding: 2rem 0.5rem;
+	text-align: center;
+}
+
+.title {
+	font-size: clamp(1.6rem, 3vw, 2.1rem);
+	font-weight: 650;
+	letter-spacing: -0.02em;
+}
+
+.lede {
+	max-width: 46ch;
+	color: var(--color-text-muted);
+}
+
+.suggestions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.chip {
+	padding: 0.45rem 0.95rem;
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: var(--radius-pill);
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--color-text);
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition:
+		background var(--transition),
+		border-color var(--transition);
+	&:hover {
+		background: var(--glass-active);
+		border-color: rgba(255, 255, 255, 0.28);
+	}
+}

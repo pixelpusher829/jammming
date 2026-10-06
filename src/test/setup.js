@@ -1,70 +1,87 @@
-import "@testing-library/jest-dom";
-import { vi } from "vitest";
-import dotenv from "dotenv";
+import "@testing-library/jest-dom/vitest";
 import path from "node:path";
+import { cleanup } from "@testing-library/react";
+import dotenv from "dotenv";
+import { afterEach, vi } from "vitest";
+import { __resetAuthState } from "@/lib/auth";
 
-// Load environment variables from .env.development.local
-dotenv.config({ path: path.resolve(process.cwd(), ".env.development.local") });
-
-// Polyfill import.meta.env
-const VITE_SPOTIFY_CLIENT_ID =
-	process.env.VITE_SPOTIFY_CLIENT_ID || "mock_client_id";
-const VITE_SPOTIFY_REDIRECT_URI =
-	process.env.VITE_SPOTIFY_REDIRECT_URI || "http://localhost:5173";
-
-if (typeof import.meta.env === "undefined") {
-	Object.defineProperty(import.meta, "env", {
-		value: {
-			VITE_SPOTIFY_CLIENT_ID,
-			VITE_SPOTIFY_REDIRECT_URI,
-			BASE_URL: "/",
-			MODE: "test",
-			DEV: true,
-			PROD: false,
-		},
-		writable: true,
-	});
-} else {
-	// If it exists, merge our env vars into it
-	Object.assign(import.meta.env, {
-		VITE_SPOTIFY_CLIENT_ID,
-		VITE_SPOTIFY_REDIRECT_URI,
-	});
-}
-
-// Also verify if it loaded
-if (!process.env.VITE_SPOTIFY_CLIENT_ID) {
-	console.warn(
-		"WARNING: VITE_SPOTIFY_CLIENT_ID is missing in tests. Did 'vercel env pull' run?",
-	);
-}
-
-const localStorageMock = (() => {
-	let store = {};
-	return {
-		getItem: vi.fn((key) => store[key] || null),
-		setItem: vi.fn((key, value) => {
-			store[key] = value.toString();
-		}),
-		clear: vi.fn(() => {
-			store = {};
-		}),
-		removeItem: vi.fn((key) => {
-			delete store[key];
-		}),
-	};
-})();
-
-Object.defineProperty(window, "localStorage", {
-	value: localStorageMock,
+// Load environment variables from .env.development.local when present
+dotenv.config({
+	path: path.resolve(process.cwd(), ".env.development.local"),
+	quiet: true,
 });
 
-// Mocking window.crypto for the PKCE stuff
+Object.assign(import.meta.env, {
+	VITE_SPOTIFY_CLIENT_ID:
+		process.env.VITE_SPOTIFY_CLIENT_ID || "mock_client_id",
+	VITE_SPOTIFY_REDIRECT_URI:
+		process.env.VITE_SPOTIFY_REDIRECT_URI || "http://127.0.0.1:3000",
+});
+
+// Node's experimental global localStorage shadows jsdom's and is undefined
+// without --localstorage-file, so provide simple in-memory storages
+class MemoryStorage {
+	#store = new Map();
+	get length() {
+		return this.#store.size;
+	}
+	key(i) {
+		return [...this.#store.keys()][i] ?? null;
+	}
+	getItem(key) {
+		return this.#store.has(key) ? this.#store.get(key) : null;
+	}
+	setItem(key, value) {
+		this.#store.set(key, String(value));
+	}
+	removeItem(key) {
+		this.#store.delete(key);
+	}
+	clear() {
+		this.#store.clear();
+	}
+}
+
+for (const name of ["localStorage", "sessionStorage"]) {
+	const storage = new MemoryStorage();
+	Object.defineProperty(window, name, { value: storage, configurable: true });
+	Object.defineProperty(globalThis, name, {
+		value: storage,
+		configurable: true,
+	});
+}
+
+// jsdom lacks matchMedia (used by the toast library)
+Object.defineProperty(window, "matchMedia", {
+	configurable: true,
+	value: (query) => ({
+		matches: false,
+		media: query,
+		onchange: null,
+		addEventListener() {},
+		removeEventListener() {},
+		addListener() {},
+		removeListener() {},
+		dispatchEvent: () => false,
+	}),
+});
+
+// Deterministic PKCE primitives
 Object.defineProperty(window, "crypto", {
 	value: {
-		getRandomValues: (arr) => arr.map(() => Math.floor(Math.random() * 256)),
+		getRandomValues: (arr) => arr.map((_, i) => i),
 		subtle: {
-			digest: vi.fn().mockResolvedValue(new Uint8Array(32).buffer),
+			digest: async () => new Uint8Array(32).buffer,
 		},
 	},
+});
+
+afterEach(() => {
+	cleanup();
+	localStorage.clear();
+	sessionStorage.clear();
+	__resetAuthState();
+	vi.restoreAllMocks();
+	vi.unstubAllGlobals();
+	window.history.replaceState({}, "", "/");
 });

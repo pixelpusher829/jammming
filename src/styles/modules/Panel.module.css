@@ -1,0 +1,210 @@
+/* Shared glass panel chrome and controls */
+
+.panel {
+	position: relative;
+	min-width: 0;
+	padding: 1.5rem;
+	border-radius: var(--radius-lg);
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+	box-shadow: var(--glass-shadow);
+	isolation: isolate;
+
+	/* Gradient hairline border that catches the light like a glass edge */
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		padding: 1px;
+		border-radius: inherit;
+		background: var(--glass-edge);
+		-webkit-mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		-webkit-mask-composite: xor;
+		mask-composite: exclude;
+		pointer-events: none;
+	}
+}
+
+/* Browsers without backdrop-filter get a more opaque panel instead */
+@supports not (
+		(backdrop-filter: blur(1px)) or
+		(-webkit-backdrop-filter: blur(1px))
+	) {
+	.panel {
+		background: rgba(20, 12, 38, 0.92);
+	}
+}
+
+.panelHeader {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem 1rem;
+	min-height: 2.25rem;
+	margin-bottom: 1rem;
+}
+
+.meta {
+	color: var(--color-text-muted);
+	font-size: 0.82rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.trackList {
+	display: flex;
+	flex-direction: column;
+	container-type: inline-size;
+	transition: opacity var(--transition);
+}
+
+.emptyState {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 3rem 1rem;
+	color: var(--color-text-muted);
+	text-align: center;
+	& svg {
+		color: var(--color-text-subtle);
+	}
+	& p {
+		max-width: 30ch;
+	}
+}
+
+.iconButton {
+	display: grid;
+	place-items: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	flex-shrink: 0;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--color-text);
+	cursor: pointer;
+	transition:
+		background var(--transition),
+		color var(--transition),
+		transform var(--transition);
+	&:hover:not(:disabled) {
+		background: var(--glass-active);
+	}
+	&:active:not(:disabled) {
+		transform: scale(0.92);
+	}
+	&:disabled {
+		color: var(--color-text-disabled);
+	}
+}
+
+.primaryButton,
+.secondaryButton,
+.spotifyButton,
+.textButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+	border-radius: var(--radius-pill);
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	transition:
+		background var(--transition),
+		border-color var(--transition),
+		color var(--transition),
+		box-shadow var(--transition),
+		transform var(--transition);
+	& svg {
+		flex-shrink: 0;
+	}
+	&:active:not(:disabled) {
+		transform: scale(0.97);
+	}
+}
+
+.primaryButton {
+	min-height: 2.75rem;
+	padding: 0 1.4rem;
+	border: none;
+	background: var(--color-primary-strong);
+	color: white;
+	&:hover:not(:disabled) {
+		background: #7c3aed;
+	}
+	&:disabled {
+		background: rgba(255, 255, 255, 0.08);
+		color: var(--color-text-subtle);
+	}
+}
+
+.spotifyButton {
+	min-height: 2.75rem;
+	padding: 0 1.4rem;
+	border: none;
+	background: var(--color-spotify);
+	color: #04130a;
+	&:hover {
+		background: #3be477;
+	}
+}
+
+.secondaryButton {
+	min-height: 2.75rem;
+	padding: 0 1.2rem;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--color-text);
+	&:hover:not(:disabled) {
+		background: var(--glass-active);
+		border-color: rgba(255, 255, 255, 0.3);
+	}
+	&:disabled {
+		color: var(--color-text-subtle);
+	}
+}
+
+.textButton {
+	min-height: 2.25rem;
+	padding: 0 0.75rem;
+	border: none;
+	background: transparent;
+	color: var(--color-text-muted);
+	&:hover:not(:disabled) {
+		background: var(--glass-hover);
+		color: var(--color-text);
+	}
+	&:disabled {
+		color: var(--color-text-disabled);
+	}
+	&[aria-expanded="true"] {
+		background: var(--glass-active);
+		color: var(--color-text);
+	}
+}
+
+.spin {
+	animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (max-width: 560px) {
+	.panel {
+		padding: 1rem;
+		border-radius: 18px;
+	}
+}

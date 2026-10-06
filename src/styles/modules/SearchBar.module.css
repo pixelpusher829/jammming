@@ -1,35 +1,88 @@
 .searchbar {
-	display: flex;
-	justify-content: center;
-	width: auto;
-	margin: 5rem auto;
 	position: relative;
-	& button {
-		position: relative;
-		left: 0.8rem;
-		top: 0.2rem;
-		z-index: 2;
-		padding: 0.8rem;
-		background: none;
-		border: none;
-		cursor: pointer;
-	}
+	width: 100%;
+
 	& input {
-		padding: 1rem 1.5rem 1rem 3.8rem;
-		border-radius: 2rem;
-		margin-left: -2.3rem;
-		max-width: 25rem;
 		width: 100%;
-		display: inline-block;
-		transition: 400ms ease-in-out;
-		outline: transparent 25px solid;
+		height: 2.75rem;
+		padding: 0 2.75rem 0 2.6rem;
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.07);
+		color: var(--color-text);
+		font-size: 0.95rem;
+		transition:
+			background var(--transition),
+			border-color var(--transition),
+			box-shadow var(--transition);
+
+		&::placeholder {
+			color: var(--color-text-subtle);
+		}
+		&::-webkit-search-cancel-button {
+			display: none;
+		}
+		&:hover {
+			background: rgba(255, 255, 255, 0.1);
+		}
 		&:focus {
-			outline: var(--accent-color) solid;
-			transition: 700ms ease;
+			outline: none;
+			background: rgba(255, 255, 255, 0.12);
+			border-color: rgba(103, 232, 249, 0.7);
+			box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.18);
 		}
 	}
 }
 
-form .icon {
-	color: var(--accent-color);
+.icon {
+	position: absolute;
+	top: 50%;
+	left: 0.95rem;
+	transform: translateY(-50%);
+	color: var(--color-text-muted);
+	pointer-events: none;
+}
+
+.clear {
+	position: absolute;
+	top: 50%;
+	right: 0.2rem;
+	transform: translateY(-50%);
+	display: grid;
+	place-items: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--color-text-muted);
+	cursor: pointer;
+	&:hover {
+		background: var(--glass-active);
+		color: var(--color-text);
+	}
+}
+
+.shortcut {
+	position: absolute;
+	top: 50%;
+	right: 0.75rem;
+	transform: translateY(-50%);
+	display: grid;
+	place-items: center;
+	width: 1.4rem;
+	height: 1.4rem;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 6px;
+	color: var(--color-text-subtle);
+	font-family: inherit;
+	font-size: 0.75rem;
+	pointer-events: none;
+}
+
+/* No physical keyboard shortcut hint on touch devices */
+@media (hover: none) {
+	.shortcut {
+		display: none;
+	}
 }

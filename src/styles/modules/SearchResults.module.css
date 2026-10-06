@@ -1,0 +1,12 @@
+.stale {
+	opacity: 0.5;
+}
+
+.added {
+	color: var(--color-spotify);
+}
+
+.loadMore {
+	width: 100%;
+	margin-top: 1rem;
+}

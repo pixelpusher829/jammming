@@ -1,38 +1,48 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import SearchBar from "@/components/SearchBar";
 
-// Mock CSS module
-vi.mock("../styles/modules/SearchBar.module.css", () => ({
-	default: { searchbar: "searchbar", icon: "icon" },
-}));
+function Harness({ onSubmit }) {
+	const [value, setValue] = useState("");
+	return <SearchBar value={value} onChange={setValue} onSubmit={onSubmit} />;
+}
 
 describe("SearchBar", () => {
-	it("renders input and search button", () => {
-		render(<SearchBar handleSearch={() => {}} />);
-		expect(
-			screen.getByPlaceholderText("Enter a song name"),
-		).toBeInTheDocument();
-		expect(screen.getByRole("button")).toBeInTheDocument();
+	it("has an accessible label", () => {
+		render(<Harness onSubmit={() => {}} />);
+		expect(screen.getByLabelText(/search spotify/i)).toBeInTheDocument();
 	});
 
-	it("updates input value when typing", () => {
-		render(<SearchBar handleSearch={() => {}} />);
-		const input = screen.getByPlaceholderText("Enter a song name");
+	it("submits the current value", () => {
+		const onSubmit = vi.fn();
+		render(<Harness onSubmit={onSubmit} />);
+		const input = screen.getByRole("searchbox");
+
 		fireEvent.change(input, { target: { value: "test song" } });
-		expect(input.value).toBe("test song");
+		fireEvent.submit(input.closest("form"));
+
+		expect(onSubmit).toHaveBeenLastCalledWith("test song");
 	});
 
-	it("calls handleSearch with input value when form is submitted", () => {
-		const handleSearchMock = vi.fn();
-		render(<SearchBar handleSearch={handleSearchMock} />);
+	it("clears with the button or Escape", () => {
+		const onSubmit = vi.fn();
+		render(<Harness onSubmit={onSubmit} />);
+		const input = screen.getByRole("searchbox");
 
-		const input = screen.getByPlaceholderText("Enter a song name");
-		fireEvent.change(input, { target: { value: "test song" } });
+		fireEvent.change(input, { target: { value: "abc" } });
+		fireEvent.click(screen.getByRole("button", { name: /clear search/i }));
+		expect(onSubmit).toHaveBeenLastCalledWith("");
 
-		const form = input.closest("form");
-		fireEvent.submit(form);
+		onSubmit.mockClear();
+		fireEvent.change(input, { target: { value: "xyz" } });
+		fireEvent.keyDown(input, { key: "Escape" });
+		expect(onSubmit).toHaveBeenLastCalledWith("");
+	});
 
-		expect(handleSearchMock).toHaveBeenCalledWith("test song");
+	it("focuses the search box when / is pressed", () => {
+		render(<Harness onSubmit={() => {}} />);
+		fireEvent.keyDown(window, { key: "/" });
+		expect(screen.getByRole("searchbox")).toHaveFocus();
 	});
 });

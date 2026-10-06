@@ -51,16 +51,25 @@ export default async function handler(request) {
 
 		if (!spotifyResponse.ok) {
 			console.error("Spotify Token API Error:", data);
-			return new Response(JSON.stringify(data), {
-				status: spotifyResponse.status,
-				headers: { "Content-Type": "application/json" },
-			});
+			return new Response(
+				JSON.stringify({ error: "Could not get a Spotify token." }),
+				{ status: 502, headers: { "Content-Type": "application/json" } },
+			);
 		}
 
-		return new Response(JSON.stringify({ access_token: data.access_token }), {
-			status: 200,
-			headers: { "Content-Type": "application/json" },
-		});
+		return new Response(
+			JSON.stringify({
+				access_token: data.access_token,
+				expires_in: data.expires_in,
+			}),
+			{
+				status: 200,
+				headers: {
+					"Content-Type": "application/json",
+					"Cache-Control": "no-store",
+				},
+			},
+		);
 	} catch (error) {
 		console.error("Error in public-auth serverless function:", error);
 		return new Response(

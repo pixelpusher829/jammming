@@ -1,90 +1,273 @@
 .track {
+	position: relative;
 	display: flex;
-	width: 100%;
-	justify-content: space-between;
 	align-items: center;
-	padding-bottom: 0.8rem;
-	margin: 1rem 0;
-	&:not(:last-of-type) {
-		border-bottom: 1px solid rgba(255, 255, 255, 0.192);
+	gap: 0.75rem;
+	min-height: 3.75rem;
+	padding: 0.45rem 0.5rem;
+	border-radius: var(--radius-md);
+	transition: background var(--transition);
+
+	&:hover,
+	&:focus-within {
+		background: var(--glass-hover);
+	}
+
+	&[data-playing] h3 {
+		color: var(--color-primary-soft);
+	}
+
+	&[data-dragging] {
+		z-index: 10;
+		background: rgba(40, 26, 72, 0.92);
+		box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.8);
 	}
 }
 
-.trackContent {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	flex: 1;
-	min-width: 0;
+.handle {
+	display: grid;
+	place-items: center;
+	width: 1.5rem;
+	height: 2.5rem;
+	flex-shrink: 0;
+	margin-right: -0.4rem;
+	border: none;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--color-text-subtle);
+	cursor: grab;
+	touch-action: none;
+	&:hover {
+		color: var(--color-text);
+	}
+	&:active {
+		cursor: grabbing;
+	}
+}
+
+.index {
+	width: 1.4rem;
+	flex-shrink: 0;
+	color: var(--color-text-subtle);
+	font-size: 0.8rem;
+	font-variant-numeric: tabular-nums;
+	text-align: right;
 }
 
 .imageContainer {
 	position: relative;
-	width: 50px;
-	height: 50px;
+	width: 44px;
+	height: 44px;
 	flex-shrink: 0;
-	border-radius: 4px;
+	border-radius: var(--radius-sm);
 	overflow: hidden;
+	background: rgba(255, 255, 255, 0.06);
+	box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.6);
 }
 
 .albumArt {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	display: block;
 }
 
-.spotifyLink {
+.play {
 	position: absolute;
+	inset: 0;
 	display: grid;
 	place-items: center;
-	inset: 0;
-	padding-top:5px;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.4);
+	border: none;
+	background: rgba(0, 0, 0, 0.5);
+	color: white;
 	opacity: 0;
-	transition: opacity 0.2s ease;
+	cursor: pointer;
+	transition: opacity var(--transition);
+
+	&:focus-visible {
+		opacity: 1;
+		outline-offset: -2px;
+	}
+	&[aria-pressed="true"] {
+		opacity: 1;
+		background: rgba(76, 29, 149, 0.6);
+	}
 }
 
-.imageContainer:hover .spotifyLink {
+.track:hover .play {
 	opacity: 1;
 }
 
-.spotifyLink:hover {
-	background-color: rgba(0, 0, 0, 0.6);
-	color: #1ed760; 
+/* Touch screens can't hover, so always hint that the art is playable */
+@media (hover: none) {
+	.play {
+		opacity: 1;
+		background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.55));
+		place-items: end start;
+		padding: 0.2rem;
+
+		& svg {
+			width: 14px;
+			height: 14px;
+		}
+	}
 }
 
 .trackInfo {
+	flex: 1;
 	min-width: 0;
+
 	& h3,
-	p {
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 1;
+	& p {
 		overflow: hidden;
 		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	& h3 {
+		font-size: 0.92rem;
+		font-weight: 500;
+		transition: color var(--transition);
 	}
 
 	& p {
-		font-size: 0.85rem;
-		color: rgba(255, 255, 255, 0.671);
+		font-size: 0.8rem;
+		color: var(--color-text-muted);
 	}
 }
 
-.toggleButton {
-	font-size: 1.5rem;
-	background: none;
-	border: none;
-	cursor: pointer;
-	color: white;
-	padding: 0.8rem 1.5rem;
-	border-radius: 2rem;
-	transition: 600ms;
-	aspect-ratio: 1 / 1;
+.explicit {
+	display: inline-grid;
+	place-items: center;
+	width: 0.95rem;
+	height: 0.95rem;
+	margin-right: 0.35rem;
+	border-radius: 3px;
+	background: var(--color-text-subtle);
+	color: var(--color-bg);
+	font-size: 0.58rem;
+	font-weight: 700;
+	text-decoration: none;
+	vertical-align: 0.1em;
+}
+
+.album {
+	flex: 0 1 30%;
+	min-width: 0;
+	overflow: hidden;
+	color: var(--color-text-muted);
+	font-size: 0.8rem;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.duration {
+	flex-shrink: 0;
+	width: 2.75rem;
+	color: var(--color-text-muted);
+	font-size: 0.8rem;
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.spotifyLink {
+	display: grid;
+	place-items: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 50%;
+	color: var(--color-text-muted);
+	opacity: 0;
+	transition:
+		opacity var(--transition),
+		color var(--transition),
+		background var(--transition);
 	&:hover {
-		background-color: rgba(255, 255, 255, 0.16);
-		transition: 400ms;
+		background: var(--glass-active);
+		color: var(--color-spotify);
+	}
+	&:focus-visible {
+		opacity: 1;
+	}
+}
+
+.track:hover .spotifyLink {
+	opacity: 1;
+}
+
+/* Rows adapt to the width of their list, not the viewport, so the same row
+   works in the wide results column and the narrower playlist sidebar */
+@container (max-width: 600px) {
+	.album {
+		display: none;
+	}
+}
+
+@container (max-width: 440px) {
+	.index,
+	.spotifyLink {
+		display: none;
+	}
+}
+
+@container (max-width: 360px) {
+	.track {
+		gap: 0.6rem;
+		padding: 0.4rem 0.25rem;
+	}
+	.duration {
+		display: none;
+	}
+	.imageContainer {
+		width: 40px;
+		height: 40px;
+	}
+}
+
+/* Loading placeholders */
+.skeleton:hover {
+	background: none;
+}
+
+.skeleton .imageContainer,
+.skeletonLine,
+.skeletonLineShort {
+	background: linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 0.05) 25%,
+		rgba(255, 255, 255, 0.12) 50%,
+		rgba(255, 255, 255, 0.05) 75%
+	);
+	background-size: 200% 100%;
+	animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeletonLine,
+.skeletonLineShort {
+	display: block;
+	height: 0.75rem;
+	border-radius: var(--radius-sm);
+}
+
+.skeletonLine {
+	width: 60%;
+	margin-bottom: 0.5rem;
+}
+
+.skeletonLineShort {
+	width: 35%;
+}
+
+@keyframes shimmer {
+	from {
+		background-position: 200% 0;
+	}
+	to {
+		background-position: -200% 0;
 	}
 }
